@@ -1,0 +1,2383 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>SiL Tahfidz - MTsS Nurul Islam Indonesia</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    :root {
+      --army-dark: #1E3329;
+      --army-primary: #2D4A3E;
+      --army-medium: #3E6353;
+      --army-soft: #EEF3F0;
+      --gold-primary: #C9A227;
+      --gold-light: #E8C967;
+      --gold-soft: #FBF6E6;
+      --white: #FFFFFF;
+      --bg-light: #F7F9F8;
+      --text-main: #1A2420;
+      --text-muted: #5F6F68;
+      --border-color: #DCE5E0;
+      --danger: #C0392B;
+      --success: #1E8449;
+      --shadow-sm: 0 2px 8px rgba(30, 51, 41, 0.06);
+      --shadow-md: 0 8px 24px rgba(30, 51, 41, 0.10);
+      --shadow-lg: 0 16px 40px rgba(30, 51, 41, 0.14);
+      --radius-md: 12px;
+      --radius-lg: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-light);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .hidden { display: none !important; }
+
+    /* ================= LOADING OVERLAY ================= */
+    #loadingOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(6px);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+    }
+    .spinner-ring {
+      width: 52px;
+      height: 52px;
+      border: 4px solid var(--army-soft);
+      border-top: 4px solid var(--army-primary);
+      border-right: 4px solid var(--gold-primary);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ================= TOAST NOTIFICATION ================= */
+    #toastBox {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .toast {
+      background: var(--army-dark);
+      color: var(--white);
+      padding: 14px 20px;
+      border-radius: var(--radius-md);
+      border-left: 5px solid var(--gold-primary);
+      box-shadow: var(--shadow-lg);
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: slideIn 0.3s ease;
+    }
+    .toast.error { border-left-color: #E74C3C; }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* ================= LANDING PAGE (HALAMAN AWAL) ================= */
+    #landingView {
+      min-height: 100vh;
+      background: radial-gradient(circle at top right, #E8F0EC 0%, #FFFFFF 45%, #FBF8EE 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 20px;
+      position: relative;
+    }
+    #landingView::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(var(--army-primary) 0.6px, transparent 0.6px);
+      background-size: 28px 28px;
+      opacity: 0.06;
+      pointer-events: none;
+    }
+
+    .landing-card {
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(201, 162, 39, 0.28);
+      box-shadow: var(--shadow-lg);
+      border-radius: 26px;
+      max-width: 490px;
+      width: 100%;
+      padding: 42px 36px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .brand-logo-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .app-title-main {
+      font-size: 2.15rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--army-dark);
+      margin-top: 12px;
+      line-height: 1.1;
+    }
+    .app-title-main span {
+      color: var(--gold-primary);
+    }
+    .app-subtitle-main {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+      line-height: 1.45;
+      font-weight: 500;
+    }
+
+    .selector-group {
+      text-align: left;
+      margin-bottom: 18px;
+    }
+    .selector-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--army-primary);
+      margin-bottom: 8px;
+    }
+
+    .semester-pills {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .sem-pill {
+      padding: 12px;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-md);
+      background: var(--white);
+      color: var(--text-main);
+      font-weight: 700;
+      font-size: 0.92rem;
+      cursor: pointer;
+      transition: all 0.22s ease;
+      text-align: center;
+    }
+    .sem-pill.active {
+      background: var(--army-primary);
+      color: var(--white);
+      border-color: var(--army-primary);
+      box-shadow: 0 4px 12px rgba(45, 74, 62, 0.25);
+    }
+
+    .form-select-lg {
+      width: 100%;
+      padding: 13px 16px;
+      border-radius: var(--radius-md);
+      border: 1.5px solid var(--border-color);
+      background: var(--white);
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--army-dark);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-select-lg:focus {
+      border-color: var(--gold-primary);
+    }
+
+    /* HOLOGRAM BUTTON "MULAI" */
+    .btn-hologram-start {
+      margin-top: 12px;
+      width: 100%;
+      padding: 15px 24px;
+      border-radius: 14px;
+      border: 1.5px solid rgba(201, 162, 39, 0.75);
+      background: linear-gradient(135deg, rgba(45, 74, 62, 0.94) 0%, rgba(30, 51, 41, 0.98) 50%, rgba(62, 99, 83, 0.94) 100%);
+      color: var(--white);
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 25px rgba(45, 74, 62, 0.28), inset 0 0 16px rgba(232, 201, 103, 0.35);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .btn-hologram-start::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 45%;
+      height: 200%;
+      background: linear-gradient(90deg, transparent, rgba(232, 201, 103, 0.48), rgba(255, 255, 255, 0.55), transparent);
+      transform: rotate(25deg);
+      animation: holoSweep 3.2s infinite ease-in-out;
+    }
+    @keyframes holoSweep {
+      0% { left: -60%; }
+      55% { left: 135%; }
+      100% { left: 135%; }
+    }
+    .btn-hologram-start:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(45, 74, 62, 0.36), 0 0 18px rgba(201, 162, 39, 0.45);
+      border-color: var(--gold-light);
+    }
+
+    /* ================= MAIN WORKSPACE HEADER ================= */
+    .topbar {
+      background: var(--white);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .topbar-app-info h1 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--army-dark);
+      line-height: 1.1;
+    }
+    .topbar-app-info p {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .topbar-center {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--army-soft);
+      padding: 6px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+    }
+    .switch-select {
+      border: 1px solid var(--border-color);
+      background: var(--white);
+      color: var(--army-dark);
+      font-weight: 700;
+      font-size: 0.84rem;
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .school-logo-box {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: var(--army-dark);
+      border: 2px solid var(--gold-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 3px;
+    }
+    .school-logo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .btn-logout {
+      background: #FDF2F2;
+      color: var(--danger);
+      border: 1px solid #F5C6CB;
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.84rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-logout:hover {
+      background: var(--danger);
+      color: var(--white);
+    }
+
+    /* ================= MAIN CONTAINER & GRID ================= */
+    .workspace-container {
+      max-width: 1360px;
+      margin: 26px auto;
+      padding: 0 24px;
+    }
+
+    .home-grid {
+      display: grid;
+      grid-template-columns: 1.65fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    @media (max-width: 992px) {
+      .home-grid { grid-template-columns: 1fr; }
+    }
+
+    .card-panel {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+      padding: 24px;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1.5px solid var(--army-soft);
+      padding-bottom: 14px;
+      margin-bottom: 20px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .panel-title {
+      font-size: 1.12rem;
+      font-weight: 800;
+      color: var(--army-dark);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .panel-title i {
+      color: var(--gold-primary);
+    }
+
+    /* STAT CARDS IN PROGRES SISWA */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin: 18px 0;
+    }
+    @media (max-width: 600px) {
+      .stats-row { grid-template-columns: 1fr; }
+    }
+    .stat-box {
+      background: var(--army-soft);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-box.gold {
+      background: var(--gold-soft);
+      border-color: rgba(201, 162, 39, 0.35);
+    }
+    .stat-label {
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .stat-value {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--army-dark);
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      background: #E2EAE5;
+      border-radius: 99px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--army-primary), var(--gold-primary));
+      width: 0%;
+      transition: width 0.45s ease;
+    }
+
+    /* DASHBOARD MENU CARDS */
+    .dash-menu-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .menu-tile {
+      background: var(--white);
+      border: 1.5px solid var(--border-color);
+      border-radius: 15px;
+      padding: 18px 16px;
+      cursor: pointer;
+      transition: all 0.22s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+      text-align: left;
+    }
+    .menu-tile:hover {
+      border-color: var(--gold-primary);
+      background: linear-gradient(145deg, var(--white), var(--gold-soft));
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+    }
+    .menu-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 11px;
+      background: var(--army-primary);
+      color: var(--gold-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+    }
+    .menu-tile-title {
+      font-weight: 800;
+      font-size: 0.92rem;
+      color: var(--army-dark);
+    }
+    .menu-tile-desc {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      line-height: 1.35;
+    }
+
+    /* ================= SUBPAGE NAVIGATION & FORMS ================= */
+    .subpage-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--white);
+      border: 1.5px solid var(--army-primary);
+      color: var(--army-primary);
+      padding: 9px 16px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-back:hover {
+      background: var(--army-primary);
+      color: var(--white);
+    }
+
+    .btn-primary {
+      background: var(--army-primary);
+      color: var(--white);
+      border: none;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .btn-primary:hover { background: var(--army-dark); }
+
+    .btn-gold {
+      background: var(--gold-primary);
+      color: var(--army-dark);
+      border: none;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 0.88rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .btn-gold:hover { background: var(--gold-light); }
+
+    .btn-outline {
+      background: var(--white);
+      color: var(--army-dark);
+      border: 1.5px solid var(--border-color);
+      padding: 9px 16px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.86rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-outline:hover { border-color: var(--army-primary); }
+
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 768px) {
+      .form-grid-2 { grid-template-columns: 1fr; }
+    }
+    .form-group {
+      margin-bottom: 14px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--army-dark);
+      margin-bottom: 6px;
+    }
+    .form-control {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border-color);
+      font-size: 0.9rem;
+      color: var(--text-main);
+      background: var(--white);
+      outline: none;
+    }
+    .form-control:focus { border-color: var(--army-primary); }
+
+    /* ================= TABLES ================= */
+    .table-responsive {
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+    }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    table.data-table th {
+      background: var(--army-primary);
+      color: var(--white);
+      font-weight: 700;
+      text-align: left;
+      padding: 12px 14px;
+      white-space: nowrap;
+    }
+    table.data-table td {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border-color);
+      vertical-align: middle;
+    }
+    table.data-table tr:nth-child(even) td {
+      background: #FAFDFB;
+    }
+    .badge {
+      padding: 4px 10px;
+      border-radius: 99px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      display: inline-block;
+    }
+    .badge-success { background: #D4EFDF; color: #196F3D; }
+    .badge-warning { background: #FCF3CF; color: #9A7D0A; }
+    .badge-muted { background: #EAEDED; color: #566573; }
+
+    .action-icon-btn {
+      border: none;
+      background: none;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      transition: background 0.15s;
+    }
+    .action-icon-btn.edit { color: var(--army-primary); }
+    .action-icon-btn.edit:hover { background: var(--army-soft); }
+    .action-icon-btn.delete { color: var(--danger); }
+    .action-icon-btn.delete:hover { background: #FDEDEC; }
+
+    /* ================= RAPOR A4 SHEET PREVIEW ================= */
+    .rapor-preview-wrapper {
+      background: #525659;
+      padding: 28px 16px;
+      border-radius: 14px;
+      display: flex;
+      justify-content: center;
+      overflow-x: auto;
+    }
+    .a4-sheet {
+      width: 210mm;
+      min-height: 297mm;
+      max-height: 297mm;
+      background: #FFFFFF;
+      color: #000000;
+      padding: 10mm 16mm 12mm 16mm;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+    /* Area Kosong Khusus Kop Surat Madrasah */
+    .kop-surat-placeholder {
+      height: 34mm;
+      width: 100%;
+      border: 1px dashed #CBD5E1;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #94A3B8;
+      font-size: 0.78rem;
+      margin-bottom: 4mm;
+    }
+    .rapor-doc-title {
+      text-align: center;
+      margin-bottom: 4mm;
+    }
+    .rapor-doc-title h2 {
+      font-size: 13pt;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #1E3329;
+    }
+    .rapor-doc-title p {
+      font-size: 9.5pt;
+      font-weight: 600;
+      color: #333;
+    }
+    .rapor-meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px 18px;
+      font-size: 9pt;
+      margin-bottom: 4mm;
+      border-top: 1.5px solid #1E3329;
+      border-bottom: 1.5px solid #1E3329;
+      padding: 6px 0;
+    }
+    .rapor-meta-row {
+      display: flex;
+      gap: 6px;
+    }
+    .rapor-meta-label {
+      width: 115px;
+      font-weight: 700;
+    }
+    table.rapor-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8.5pt;
+      margin-bottom: 3mm;
+    }
+    table.rapor-table th, table.rapor-table td {
+      border: 1px solid #222;
+      padding: 4px 7px;
+    }
+    table.rapor-table th {
+      background: #EEF3F0;
+      font-weight: 700;
+      text-align: center;
+    }
+    .rapor-summary-box {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 10px;
+      font-size: 8.5pt;
+      margin-bottom: 4mm;
+    }
+    .rapor-box-item {
+      border: 1px solid #222;
+      padding: 6px 8px;
+      border-radius: 4px;
+    }
+    .rapor-signatures {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      text-align: center;
+      font-size: 8.8pt;
+      margin-top: 2mm;
+      padding-top: 2mm;
+    }
+    .sig-space {
+      height: 17mm;
+    }
+
+    /* PRINT MEDIA QUERY UNTUK CETAK PRESISI 1 LEMBAR A4 */
+    @media print {
+      body * { visibility: hidden; }
+      #raporA4Area, #raporA4Area * { visibility: visible; }
+      #raporA4Area {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 210mm;
+        height: 297mm;
+        box-shadow: none;
+        margin: 0;
+        padding: 10mm 16mm 12mm 16mm;
+      }
+      .kop-surat-placeholder {
+        border: none !important;
+        color: transparent !important;
+      }
+      @page {
+        size: A4 portrait;
+        margin: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOADING OVERLAY -->
+  <div id="loadingOverlay" class="hidden">
+    <div class="spinner-ring"></div>
+    <div id="loadingText" style="font-weight:700; color:var(--army-dark);">Memuat Sistem SiL Tahfidz...</div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div id="toastBox"></div>
+
+  <!-- =======================================================================
+       1. HALAMAN TAMPILAN AWAL (LANDING PAGE)
+       ======================================================================= -->
+  <section id="landingView">
+    <div class="landing-card">
+      <div class="brand-logo-wrap">
+        <!-- LOGO KONSEPTUAL ISLAMI MODERN (KOMBINASI KALIGRAFI GEOMETRIS & HURUF S-L-T) -->
+        <svg width="96" height="96" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="armyGrad" x1="15" y1="15" x2="105" y2="105" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#3E6353"/>
+              <stop offset="100%" stop-color="#1E3329"/>
+            </linearGradient>
+            <linearGradient id="goldGrad" x1="20" y1="10" x2="100" y2="110" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#E8C967"/>
+              <stop offset="50%" stop-color="#C9A227"/>
+              <stop offset="100%" stop-color="#9E7B16"/>
+            </linearGradient>
+          </defs>
+          <!-- Bingkai Rub el Hizb (Oktagram Islami) -->
+          <rect x="24" y="24" width="72" height="72" rx="14" stroke="url(#goldGrad)" stroke-width="3" fill="url(#armyGrad)"/>
+          <rect x="24" y="24" width="72" height="72" rx="14" transform="rotate(45 60 60)" stroke="url(#goldGrad)" stroke-width="2.5" fill="url(#armyGrad)" fill-opacity="0.92"/>
+          <!-- Monogram Huruf "S i L" & Rehal Al-Qur'an -->
+          <path d="M40 67C46 61 54 61 60 67C66 61 74 61 80 67V75C74 69 66 69 60 75C54 69 46 69 40 75V67Z" fill="url(#goldGrad)"/>
+          <path d="M51 43C51 39.5 54.5 37 59 37H63C66.5 37 69 39 69 42C69 45 66.5 46.5 62 47.5L57 48.5C53 49.5 51 51.5 51 54.5C51 57.5 54 60 58.5 60H64C67.5 60 70 58 70 55" stroke="#FFFFFF" stroke-width="4.2" stroke-linecap="round"/>
+          <!-- Titik Emas & Bintang Cahaya Ilmu -->
+          <circle cx="60" cy="27" r="3.2" fill="#E8C967"/>
+          <path d="M77 37L78.6 40.4L82 42L78.6 43.6L77 47L75.4 43.6L72 42L75.4 40.4L77 37Z" fill="#E8C967"/>
+        </svg>
+
+        <h1 class="app-title-main" id="landingAppName">SiL <span>Tahfidz</span></h1>
+        <p class="app-subtitle-main" id="landingAppSubtitle">
+          Sistem Laporan Perkembangan Tahfidz Siswa<br>
+          <strong>MTsS Nurul Islam Indonesia</strong>
+        </p>
+      </div>
+
+      <div class="selector-group">
+        <label class="selector-label" data-i18n="selectSemester">Pilih Semester</label>
+        <div class="semester-pills">
+          <div class="sem-pill active" id="pillSem1" onclick="selectLandingSemester('1')">Semester 1 (Ganjil)</div>
+          <div class="sem-pill" id="pillSem2" onclick="selectLandingSemester('2')">Semester 2 (Genap)</div>
+        </div>
+      </div>
+
+      <div class="selector-group">
+        <label class="selector-label" for="landingKelasSelect" data-i18n="selectClass">Pilih Kelas</label>
+        <select id="landingKelasSelect" class="form-select-lg">
+          <option value="VII">Kelas VII (Tujuh)</option>
+          <option value="VIII">Kelas VIII (Delapan)</option>
+          <option value="IX">Kelas IX (Sembilan)</option>
+        </select>
+      </div>
+
+      <button type="button" class="btn-hologram-start" onclick="startAppSession()">
+        <i class="fa-solid fa-sparkles"></i>
+        <span data-i18n="btnStart">MULAI</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- =======================================================================
+       2. WORKSPACE UTAMA (SETELAH KLIK MULAI)
+       ======================================================================= -->
+  <section id="workspaceView" class="hidden">
+    <!-- TOP HEADER -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <!-- Logo Aplikasi (Kiri Atas) -->
+        <svg width="44" height="44" viewBox="0 0 120 120" fill="none">
+          <rect x="24" y="24" width="72" height="72" rx="14" stroke="#C9A227" stroke-width="4" fill="#1E3329"/>
+          <rect x="24" y="24" width="72" height="72" rx="14" transform="rotate(45 60 60)" stroke="#C9A227" stroke-width="3" fill="#2D4A3E"/>
+          <path d="M40 67C46 61 54 61 60 67C66 61 74 61 80 67V75C74 69 66 69 60 75C54 69 46 69 40 75V67Z" fill="#E8C967"/>
+          <path d="M51 43C51 39.5 54.5 37 59 37H63C66.5 37 69 39 69 42C69 45 66.5 46.5 62 47.5L57 48.5C53 49.5 51 51.5 51 54.5C51 57.5 54 60 58.5 60H64" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
+        </svg>
+        <div class="topbar-app-info">
+          <h1 id="headerAppName">SiL Tahfidz</h1>
+          <p id="headerSchoolName">MTsS Nurul Islam Indonesia</p>
+        </div>
+      </div>
+
+      <!-- Menu Beralih Kelas & Semester -->
+      <div class="topbar-center">
+        <i class="fa-solid fa-layer-group" style="color:var(--army-primary);"></i>
+        <select id="switchKelas" class="switch-select" onchange="handleContextSwitch()">
+          <option value="VII">Kelas VII</option>
+          <option value="VIII">Kelas VIII</option>
+          <option value="IX">Kelas IX</option>
+        </select>
+        <select id="switchSemester" class="switch-select" onchange="handleContextSwitch()">
+          <option value="1">Semester 1</option>
+          <option value="2">Semester 2</option>
+        </select>
+      </div>
+
+      <!-- Logo Sekolah (Kanan Atas) & Tombol Keluar -->
+      <div class="topbar-right">
+        <div class="school-logo-box" title="Logo MTsS Nurul Islam Indonesia">
+          <img id="headerSchoolLogo" src="" alt="Logo Madrasah">
+        </div>
+        <button type="button" class="btn-logout" onclick="logoutSession()">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          <span data-i18n="btnLogout">Keluar</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- KONTEN WORKSPACE -->
+    <main class="workspace-container">
+
+      <!-- ==================== HALAMAN UTAMA (HOME) ==================== -->
+      <div id="pageHome" class="home-grid">
+        <!-- KOLOM UTAMA: PROGRES SISWA -->
+        <div class="card-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <i class="fa-solid fa-chart-line"></i>
+              <span data-i18n="studentProgressTitle">PROGRES SISWA</span>
+            </div>
+            <span class="badge badge-success" id="badgeContextInfo">Kelas VII • Semester 1</span>
+          </div>
+
+          <div class="form-group">
+            <label for="homeStudentDropdown" data-i18n="chooseStudent">Pilih Nama Siswa</label>
+            <select id="homeStudentDropdown" class="form-select-lg" onchange="renderHomeStudentProgress()">
+              <option value="">-- Pilih Siswa --</option>
+            </select>
+          </div>
+
+          <!-- Ringkasan Statistik Progres Siswa -->
+          <div class="stats-row">
+            <div class="stat-box">
+              <div class="stat-label" data-i18n="achievedSurah">Surah Tercapai</div>
+              <div class="stat-value" id="homeAchievedCount">0 / 0</div>
+            </div>
+            <div class="stat-box gold">
+              <div class="stat-label" data-i18n="targetSurah">Target Surah</div>
+              <div class="stat-value" id="homeTargetSurah" style="font-size:1.05rem; padding-top:4px;">-</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label" data-i18n="progressPercent">Persentase Progres</div>
+              <div class="stat-value" id="homeProgressPercent">0%</div>
+              <div class="progress-track">
+                <div class="progress-fill" id="homeProgressBar"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabel Daftar Lengkap Surah & Status Siswa -->
+          <h4 style="font-size:0.9rem; color:var(--army-dark); margin:16px 0 10px 0;">
+            <i class="fa-solid fa-book-quran" style="color:var(--gold-primary);"></i>
+            <span data-i18n="fullSurahStatus">Daftar Lengkap Surah & Capaian Hafalan</span>
+          </h4>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width:50px;">No</th>
+                  <th>Nama Surah</th>
+                  <th>Kualitas Hafalan</th>
+                  <th>Status Ketercapaian</th>
+                </tr>
+              </thead>
+              <tbody id="homeSurahTableBody">
+                <tr>
+                  <td colspan="4" style="text-align:center; color:var(--text-muted); padding:24px;">
+                    Silakan pilih nama siswa pada dropdown di atas untuk melihat rincian progres hafalan.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- KOLOM KANAN: DASHBOR MENU -->
+        <div class="card-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <i class="fa-solid fa-grid-2"></i>
+              <span data-i18n="dashboardTitle">DASHBOR</span>
+            </div>
+          </div>
+
+          <div class="dash-menu-grid">
+            <button type="button" class="menu-tile" onclick="openSubpage('pageSiswa')">
+              <div class="menu-icon"><i class="fa-solid fa-users"></i></div>
+              <div class="menu-tile-title" data-i18n="menuSiswa">DATA SISWA</div>
+              <div class="menu-tile-desc">Input manual, edit, hapus, & impor Excel data siswa.</div>
+            </button>
+
+            <button type="button" class="menu-tile" onclick="openSubpage('pageMadrasah')">
+              <div class="menu-icon"><i class="fa-solid fa-mosque"></i></div>
+              <div class="menu-tile-title" data-i18n="menuMadrasah">DATA MADRASAH</div>
+              <div class="menu-tile-desc">Identitas madrasah, guru penguji, kepala & tanggal rapor.</div>
+            </button>
+
+            <button type="button" class="menu-tile" onclick="openSubpage('pageSurah')">
+              <div class="menu-icon"><i class="fa-solid fa-book-open"></i></div>
+              <div class="menu-tile-title" data-i18n="menuSurah">DAFTAR SURAH</div>
+              <div class="menu-tile-desc">Kelola target daftar surah hafalan & impor Excel.</div>
+            </button>
+
+            <button type="button" class="menu-tile" onclick="openSubpage('pageProgres')">
+              <div class="menu-icon"><i class="fa-solid fa-list-check"></i></div>
+              <div class="menu-tile-title" data-i18n="menuProgres">PROGRES HAFALAN</div>
+              <div class="menu-tile-desc">Input nilai kualitas hafalan, status tercapai & catatan guru.</div>
+            </button>
+
+            <button type="button" class="menu-tile" onclick="openSubpage('pageRapor')">
+              <div class="menu-icon"><i class="fa-solid fa-file-pdf"></i></div>
+              <div class="menu-tile-title" data-i18n="menuRapor">RAPOR TAHFIDZ</div>
+              <div class="menu-tile-desc">Pratinjau rapor A4, cetak langsung & unduh PDF rapi.</div>
+            </button>
+
+            <button type="button" class="menu-tile" onclick="openSubpage('pagePengaturan')">
+              <div class="menu-icon"><i class="fa-solid fa-gear"></i></div>
+              <div class="menu-tile-title" data-i18n="menuPengaturan">PENGATURAN</div>
+              <div class="menu-tile-desc">Ubah logo sekolah, nama aplikasi & bahasa (ID/EN).</div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== MENU 1: DATA SISWA ==================== -->
+      <div id="pageSiswa" class="card-panel hidden">
+        <div class="subpage-header">
+          <button type="button" class="btn-back" onclick="backToHome()">
+            <i class="fa-solid fa-arrow-left"></i> <span data-i18n="back">Kembali</span>
+          </button>
+          <h2 class="panel-title"><i class="fa-solid fa-users"></i> DATA SISWA</h2>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="btn-outline" onclick="downloadTemplateSiswa()">
+              <i class="fa-solid fa-file-excel" style="color:#1E8449;"></i> Download Template DATA SISWA
+            </button>
+            <label class="btn-gold" style="cursor:pointer;">
+              <i class="fa-solid fa-upload"></i> Upload Excel DATA SISWA
+              <input type="file" id="excelSiswaInput" accept=".xlsx,.xls" class="hidden" onchange="handleUploadExcelSiswa(event)">
+            </label>
+          </div>
+        </div>
+
+        <!-- Form Input / Edit Manual Siswa -->
+        <div style="background:var(--army-soft); padding:18px; border-radius:14px; margin-bottom:20px;">
+          <h4 id="formSiswaTitle" style="margin-bottom:12px; color:var(--army-dark);">Tambah Data Siswa Manual</h4>
+          <input type="hidden" id="editSiswaId">
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label>Nama Siswa *</label>
+              <input type="text" id="inputSiswaNama" class="form-control" placeholder="Contoh: Ahmad Fauzan">
+            </div>
+            <div class="form-group">
+              <label>NIS / NISN</label>
+              <input type="text" id="inputSiswaNis" class="form-control" placeholder="Contoh: 12345 / 0098765432">
+            </div>
+            <div class="form-group">
+              <label>Tempat Tanggal Lahir</label>
+              <input type="text" id="inputSiswaTtl" class="form-control" placeholder="Contoh: Medan, 12 Mei 2012">
+            </div>
+            <div class="form-group">
+              <label>Nama Orangtua / Wali</label>
+              <input type="text" id="inputSiswaOrtu" class="form-control" placeholder="Contoh: H. Abdullah">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Alamat Lengkap</label>
+            <input type="text" id="inputSiswaAlamat" class="form-control" placeholder="Masukkan alamat lengkap siswa">
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button type="button" class="btn-primary" onclick="submitSiswaManual()">
+              <i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan
+            </button>
+            <button type="button" id="btnCancelEditSiswa" class="btn-outline hidden" onclick="resetFormSiswa()">
+              Batal Edit
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabel Data Siswa -->
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width:50px;">No.</th>
+                <th>Nama Siswa</th>
+                <th>NIS / NISN</th>
+                <th>Tempat Tanggal Lahir</th>
+                <th>Alamat</th>
+                <th>Nama Orangtua</th>
+                <th style="width:100px; text-align:center;">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tableSiswaBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ==================== MENU 2: DATA MADRASAH ==================== -->
+      <div id="pageMadrasah" class="card-panel hidden">
+        <div class="subpage-header">
+          <button type="button" class="btn-back" onclick="backToHome()">
+            <i class="fa-solid fa-arrow-left"></i> <span data-i18n="back">Kembali</span>
+          </button>
+          <h2 class="panel-title"><i class="fa-solid fa-mosque"></i> DATA MADRASAH</h2>
+          <div></div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Nama Madrasah</label>
+            <input type="text" id="mdrNamaMadrasah" class="form-control" value="MTsS Nurul Islam Indonesia">
+          </div>
+          <div class="form-group">
+            <label>Kelas / Semester Aktif</label>
+            <input type="text" id="mdrKelasSemester" class="form-control" readonly style="background:var(--army-soft); font-weight:700;">
+          </div>
+          <div class="form-group">
+            <label>Nama Guru Penguji Tahfidz</label>
+            <input type="text" id="mdrGuruPenguji" class="form-control" placeholder="Nama lengkap beserta gelar">
+          </div>
+          <div class="form-group">
+            <label>Nama Kepala Madrasah</label>
+            <input type="text" id="mdrKepalaMadrasah" class="form-control" placeholder="Nama Kepala Madrasah beserta gelar">
+          </div>
+          <div class="form-group">
+            <label>Tanggal Terbit Rapor</label>
+            <input type="text" id="mdrTanggalRapor" class="form-control" placeholder="Contoh: Medan, 20 Desember 2026">
+          </div>
+          <div class="form-group">
+            <label>Tahun Ajaran</label>
+            <input type="text" id="mdrTahunAjaran" class="form-control" placeholder="Contoh: 2026/2027">
+          </div>
+        </div>
+
+        <button type="button" class="btn-primary" onclick="submitDataMadrasah()">
+          <i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan
+        </button>
+      </div>
+
+      <!-- ==================== MENU 3: DAFTAR SURAH ==================== -->
+      <div id="pageSurah" class="card-panel hidden">
+        <div class="subpage-header">
+          <button type="button" class="btn-back" onclick="backToHome()">
+            <i class="fa-solid fa-arrow-left"></i> <span data-i18n="back">Kembali</span>
+          </button>
+          <h2 class="panel-title"><i class="fa-solid fa-book-open"></i> DAFTAR SURAH</h2>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="btn-outline" onclick="downloadTemplateSurah()">
+              <i class="fa-solid fa-file-excel" style="color:#1E8449;"></i> Download Template Daftar Surah
+            </button>
+            <label class="btn-gold" style="cursor:pointer;">
+              <i class="fa-solid fa-upload"></i> Upload Excel Daftar Surah
+              <input type="file" id="excelSurahInput" accept=".xlsx,.xls" class="hidden" onchange="handleUploadExcelSurah(event)">
+            </label>
+          </div>
+        </div>
+
+        <div style="background:var(--army-soft); padding:18px; border-radius:14px; margin-bottom:20px;">
+          <h4 id="formSurahTitle" style="margin-bottom:12px; color:var(--army-dark);">Input Daftar Surah Manual</h4>
+          <input type="hidden" id="editSurahId">
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label>Nama Surah *</label>
+              <input type="text" id="inputSurahNama" class="form-control" placeholder="Contoh: An-Naba'">
+            </div>
+            <div class="form-group">
+              <label>Keterangan / Juz</label>
+              <input type="text" id="inputSurahKet" class="form-control" placeholder="Contoh: Juz 30 (40 Ayat)">
+            </div>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button type="button" class="btn-primary" onclick="submitSurahManual()">
+              <i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan
+            </button>
+            <button type="button" id="btnCancelEditSurah" class="btn-outline hidden" onclick="resetFormSurah()">
+              Batal Edit
+            </button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width:60px;">No.</th>
+                <th>Nama Surah</th>
+                <th>Keterangan</th>
+                <th style="width:100px; text-align:center;">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tableSurahBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ==================== MENU 4: PROGRES HAFALAN ==================== -->
+      <div id="pageProgres" class="card-panel hidden">
+        <div class="subpage-header">
+          <button type="button" class="btn-back" onclick="backToHome()">
+            <i class="fa-solid fa-arrow-left"></i> <span data-i18n="back">Kembali</span>
+          </button>
+          <h2 class="panel-title"><i class="fa-solid fa-list-check"></i> PROGRES HAFALAN</h2>
+          <div></div>
+        </div>
+
+        <div id="progresWarningBox" class="hidden" style="background:#FDEDEC; border:1px solid #F5B7B1; color:#922B21; padding:16px; border-radius:12px; margin-bottom:18px; font-weight:700;">
+          <i class="fa-solid fa-triangle-exclamation"></i> Input DATA SISWA terlebih dahulu sebelum mengisi Progres Hafalan!
+        </div>
+
+        <div id="progresFormContainer">
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label>1. Nama Siswa *</label>
+              <select id="progStudentDropdown" class="form-select-lg" onchange="loadStudentProgresEditor()">
+                <option value="">-- Pilih Nama Siswa --</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>2. Target Surah (Diisi Manual oleh Guru)</label>
+              <input type="text" id="progTargetSurah" class="form-control" placeholder="Contoh: Juz 30 (An-Naba' s.d. An-Nas)">
+            </div>
+          </div>
+
+          <div class="stats-row">
+            <div class="stat-box">
+              <div class="stat-label">3. Surah yang Tercapai (Otomatis)</div>
+              <div class="stat-value" id="progAchievedDisplay">0 Surah</div>
+            </div>
+            <div class="stat-box gold">
+              <div class="stat-label">Total Daftar Surah</div>
+              <div class="stat-value" id="progTotalDisplay">0 Surah</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">5. Persentase Progres (Otomatis)</div>
+              <div class="stat-value" id="progPercentDisplay">0%</div>
+            </div>
+          </div>
+
+          <h4 style="margin:18px 0 10px 0; color:var(--army-dark);">4. Tabel Penilaian Hafalan Surah</h4>
+          <div class="table-responsive" style="margin-bottom:18px;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width:50px;">No</th>
+                  <th>Nama Surah</th>
+                  <th style="width:240px;">Kualitas Hafalan</th>
+                  <th style="width:210px;">Status Ketercapaian</th>
+                </tr>
+              </thead>
+              <tbody id="progSurahTableBody"></tbody>
+              <tfoot>
+                <tr style="background:var(--gold-soft); font-weight:800;">
+                  <td colspan="3" style="text-align:right;">Jumlah Surah Tercapai (Otomatis):</td>
+                  <td id="progFooterTercapai" style="color:var(--army-dark);">0 Surah</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <div class="form-group">
+            <label>6. Kolom Catatan Guru Penguji</label>
+            <textarea id="progCatatanGuru" class="form-control" rows="3" placeholder="Tuliskan catatan evaluasi, motivasi, atau saran perbaikan tajwid/kelancaran siswa..."></textarea>
+          </div>
+
+          <button type="button" class="btn-primary" onclick="submitProgresHafalan()">
+            <i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan Progres
+          </button>
+        </div>
+      </div>
+
+      <!-- ==================== MENU 5: RAPOR TAHFIDZ ==================== -->
+      <div id="pageRapor" class="card-panel hidden">
+        <div class="subpage-header">
+          <button type="button" class="btn-back" onclick="backToHome()">
+            <i class="fa-solid fa-arrow-left"></i> <span data-i18n="back">Kembali</span>
+          </button>
+          <h2 class="panel-title"><i class="fa-solid fa-file-pdf"></i> RAPOR TAHFIDZ</h2>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button type="button" class="btn-outline" onclick="printRaporSheet()">
+              <i class="fa-solid fa-print"></i> Print Rapor (Cetak Rapor)
+            </button>
+            <button type="button" class="btn-gold" onclick="downloadRaporPdf()">
+              <i class="fa-solid fa-download"></i> Download Tampilan Rapor (PDF)
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group" style="max-width:440px;">
+          <label>Pilih Nama Siswa untuk Menampilkan Lembar Rapor</label>
+          <select id="raporStudentDropdown" class="form-select-lg" onchange="renderRaporA4()">
+            <option value="">-- Pilih Siswa --</option>
+          </select>
+        </div>
+
+        <div class="rapor-preview-wrapper">
+          <div id="raporA4Area" class="a4-sheet">
+            <div>
+              <!-- RUANG KOSONG KHUSUS KOP SURAT MADRASAH -->
+              <div class="kop-surat-placeholder">
+                [ Ruang Kosong Ukuran Kop Surat Resmi Madrasah - Tinggi 3.4 cm ]
+              </div>
+
+              <div class="rapor-doc-title">
+                <h2>LAPORAN HASIL CAPAIAN HAFALAN AL-QUR'AN (TAHFIDZ)</h2>
+                <p id="rprNamaMadrasahHeader">MTsS Nurul Islam Indonesia</p>
+              </div>
+
+              <div class="rapor-meta-grid">
+                <div>
+                  <div class="rapor-meta-row"><span class="rapor-meta-label">Nama Siswa</span>: <span id="rprNamaSiswa">-</span></div>
+                  <div class="rapor-meta-row"><span class="rapor-meta-label">NIS / NISN</span>: <span id="rprNis">-</span></div>
+                  <div class="rapor-meta-row"><span class="rapor-meta-label">Tempat/Tgl Lahir</span>: <span id="rprTtl">-</span></div>
+                </div>
+                <div>
+                  <div class="rapor-meta-row"><span class="rapor-meta-label">Kelas / Semester</span>: <span id="rprKelasSem">-</span></div>
+                  <div class="rapor-meta-row"><span class="rapor-meta-label">Tahun Ajaran</span>: <span id="rprTahunAjaran">-</span></div>
+                  <div class="rapor-meta-row"><span class="rapor-meta-label">Target Hafalan</span>: <span id="rprTargetSurah">-</span></div>
+                </div>
+              </div>
+
+              <table class="rapor-table">
+                <thead>
+                  <tr>
+                    <th style="width:36px;">No</th>
+                    <th>Nama Surah</th>
+                    <th style="width:165px;">Kualitas Hafalan</th>
+                    <th style="width:120px;">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="rprTableBody">
+                  <tr>
+                    <td colspan="4" style="text-align:center; padding:16px;">Pilih siswa untuk menampilkan rapor.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div>
+              <div class="rapor-summary-box">
+                <div class="rapor-box-item">
+                  <strong>Rekapitulasi Capaian:</strong><br>
+                  Surah Tercapai: <strong id="rprJmlTercapai">0</strong> dari <strong id="rprTotalSurah">0</strong> Surah<br>
+                  Persentase Progres: <strong id="rprPersentase">0%</strong>
+                </div>
+                <div class="rapor-box-item">
+                  <strong>Catatan Guru Penguji:</strong><br>
+                  <span id="rprCatatanGuru">-</span>
+                </div>
+              </div>
+
+              <div style="text-align:right; font-size:8.8pt; margin-bottom:2mm;" id="rprTanggalTerbit">
+                Medan, .......................... 2026
+              </div>
+
+              <!-- TANDA TANGAN 3 KOLOM SESUAI KETENTUAN -->
+              <div class="rapor-signatures">
+                <div>
+                  <div>Orangtua / Wali Siswa,</div>
+                  <div class="sig-space"></div>
+                  <div>(<strong id="rprSignOrtu">....................................</strong>)</div>
+                </div>
+                <div>
+                  <div>Guru Penguji Tahfidz,</div>
+                  <div class="sig-space"></div>
+                  <div>(<strong id="rprSignGuru">....................................</strong>)</div>
+                </div>
+                <div>
+                  <div>Mengetahui,<br>Kepala Madrasah</div>
+                  <div class="sig-space" style="height:13mm;"></div>
+                  <div>(<strong id="rprSignKepala">....................................</strong>)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== MENU 6: PENGATURAN ==================== -->
+      <div id="pagePengaturan" class="card-panel hidden">
+        <div class="subpage-header">
+          <button type="button" class="btn-back" onclick="backToHome()">
+            <i class="fa-solid fa-arrow-left"></i> <span data-i18n="back">Kembali</span>
+          </button>
+          <h2 class="panel-title"><i class="fa-solid fa-gear"></i> PENGATURAN APLIKASI</h2>
+          <div></div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Edit Nama Aplikasi</label>
+            <input type="text" id="setAppName" class="form-control" value="SiL Tahfidz">
+          </div>
+
+          <div class="form-group">
+            <label>Ganti Bahasa Aplikasi</label>
+            <select id="setLanguage" class="form-control">
+              <option value="ID">Bahasa Indonesia</option>
+              <option value="EN">English</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group" style="max-width:480px;">
+          <label>Edit Logo Sekolah (Tampil di Kanan Atas Aplikasi)</label>
+          <div style="display:flex; align-items:center; gap:16px; margin-top:8px;">
+            <div class="school-logo-box" style="width:68px; height:68px;">
+              <img id="previewSettingLogo" src="" alt="Preview Logo">
+            </div>
+            <div>
+              <input type="file" id="inputLogoFile" accept="image/png,image/jpeg,image/webp" onchange="handleLogoUploadPreview(event)">
+              <p style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">Format PNG/JPG transparan, otomatis disesuaikan proporsinya.</p>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="btn-primary" onclick="submitPengaturan()">
+          <i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan
+        </button>
+      </div>
+
+    </main>
+  </section>
+
+  <script>
+    /* ==========================================================================
+       DEFAULT LOGO NII (SVG VECTOR HIGH-RES BERDASARKAN LOGO MTsS NURUL ISLAM)
+       ========================================================================== */
+    const DEFAULT_NII_LOGO = "data:image/svg+xml;utf8," + encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+        <g fill="#FFE600">
+          ${Array.from({length: 36}).map((_, i) => {
+            const angle = i * 10;
+            const len = i % 3 === 0 ? 94 : 78;
+            return `<polygon points="100,${100-len} 96,55 104,55" transform="rotate(${angle} 100 100)"/>`;
+          }).join('')}
+        </g>
+        <circle cx="100" cy="100" r="46" fill="#0B6623" stroke="#FFE600" stroke-width="3"/>
+        <text x="100" y="108" font-family="Amiri, serif" font-size="34" font-weight="bold" fill="#FFE600" text-anchor="middle">نور الإسلام</text>
+      </svg>
+    `);
+
+    /* ==========================================================================
+       KAMUS DWIBAHASA (INDONESIA & ENGLISH)
+       ========================================================================== */
+    const I18N = {
+      ID: {
+        selectSemester: "Pilih Semester",
+        selectClass: "Pilih Kelas",
+        btnStart: "MULAI",
+        btnLogout: "Keluar",
+        studentProgressTitle: "PROGRES SISWA",
+        chooseStudent: "Pilih Nama Siswa",
+        achievedSurah: "Surah Tercapai",
+        targetSurah: "Target Surah",
+        progressPercent: "Persentase Progres",
+        fullSurahStatus: "Daftar Lengkap Surah & Capaian Hafalan",
+        dashboardTitle: "DASHBOR",
+        menuSiswa: "DATA SISWA",
+        menuMadrasah: "DATA MADRASAH",
+        menuSurah: "DAFTAR SURAH",
+        menuProgres: "PROGRES HAFALAN",
+        menuRapor: "RAPOR TAHFIDZ",
+        menuPengaturan: "PENGATURAN",
+        back: "Kembali"
+      },
+      EN: {
+        selectSemester: "Select Semester",
+        selectClass: "Select Class",
+        btnStart: "START",
+        btnLogout: "Logout",
+        studentProgressTitle: "STUDENT PROGRESS",
+        chooseStudent: "Select Student Name",
+        achievedSurah: "Achieved Surahs",
+        targetSurah: "Target Surah",
+        progressPercent: "Progress Percentage",
+        fullSurahStatus: "Complete Surah List & Memorization Status",
+        dashboardTitle: "DASHBOARD",
+        menuSiswa: "STUDENT DATA",
+        menuMadrasah: "MADRASAH DATA",
+        menuSurah: "SURAH LIST",
+        menuProgres: "MEMORIZATION PROGRESS",
+        menuRapor: "TAHFIDZ REPORT",
+        menuPengaturan: "SETTINGS",
+        back: "Back"
+      }
+    };
+
+    /* ==========================================================================
+       STATE APLIKASI
+       ========================================================================== */
+    let appState = {
+      semester: '1',
+      kelas: 'VII',
+      config: {
+        APP_NAME: 'SiL Tahfidz',
+        LANGUAGE: 'ID',
+        SCHOOL_LOGO_BASE64: ''
+      },
+      madrasah: {},
+      siswaList: [],
+      surahList: [],
+      progresMap: {},
+      tempLogoBase64: ''
+    };
+
+    // Helper aman untuk mendeteksi lingkungan Google Apps Script vs Local Preview
+    const hasGoogleScript = typeof google !== 'undefined' && google.script && google.script.run;
+
+    function callGas(functionName, ...args) {
+      return new Promise((resolve, reject) => {
+        if (!hasGoogleScript) {
+          // Mocking untuk preview lokal / offline testing
+          console.warn(`[Local Mock] Memanggil fungsi GAS: ${functionName}`, args);
+          setTimeout(() => {
+            if (functionName === 'getAppConfig') {
+              resolve({ APP_NAME: 'SiL Tahfidz', LANGUAGE: 'ID', SCHOOL_LOGO_BASE64: '' });
+            } else if (functionName === 'getDashboardBundle') {
+              resolve({
+                madrasah: { namaMadrasah: 'MTsS Nurul Islam Indonesia', namaGuruPenguji: 'Ustadz Penguji', namaKepalaMadrasah: 'Kepala Madrasah, S.Pd.I', tahunAjaran: '2026/2027', tanggalRapor: 'Medan, 20 Desember 2026' },
+                siswaList: [
+                  { id: 'SIS-001', kelas: args[0], semester: args[1], no: 1, nama: 'Ahmad Fauzan', nis: '12345', ttl: 'Medan, 12 Mei 2012', alamat: 'Jl. Melati No. 10', orangTua: 'Bpk. Abdullah' },
+                  { id: 'SIS-002', kelas: args[0], semester: args[1], no: 2, nama: 'Fatimah Az-Zahra', nis: '12346', ttl: 'Medan, 15 Agustus 2012', alamat: 'Jl. Mawar No. 5', orangTua: 'Bpk. Ridwan' }
+                ],
+                surahList: [
+                  { id: 'SUR-001', kelas: args[0], semester: args[1], no: 1, namaSurah: "An-Naba'", keterangan: 'Juz 30' },
+                  { id: 'SUR-002', kelas: args[0], semester: args[1], no: 2, namaSurah: "An-Nazi'at", keterangan: 'Juz 30' }
+                ],
+                progresMap: {
+                  'SIS-001': {
+                    targetSurah: "Juz 30 (An-Naba' s.d. An-Nazi'at)",
+                    detailSurah: [
+                      { namaSurah: "An-Naba'", kualitas: 'Jayyid Jiddan (Baik Sekali)', status: 'Tercapai' },
+                      { namaSurah: "An-Nazi'at", kualitas: 'Jayyid (Baik)', status: 'Belum tercapai' }
+                    ],
+                    catatanGuru: 'Hafalan An-Naba sudah lancar dan tajwidnya baik. Tingkatkan murajaah.'
+                  }
+                }
+              });
+            } else {
+              resolve({ success: true, message: 'Operasi berhasil disimpan (Local Mock).' });
+            }
+          }, 300);
+          return;
+        }
+
+        let runner = google.script.run
+          .withSuccessHandler(res => resolve(res))
+          .withFailureHandler(err => reject(err));
+
+        if (runner[functionName]) {
+          runner[functionName](...args);
+        } else {
+          reject(new Error(`Fungsi ${functionName} tidak ditemukan di Google Apps Script.`));
+        }
+      });
+    }
+
+    /* ==========================================================================
+       INISIALISASI SAAT HALAMAN DIMUAT
+       ========================================================================== */
+    window.addEventListener('DOMContentLoaded', () => {
+      applySchoolLogo(DEFAULT_NII_LOGO);
+      callGas('getAppConfig')
+        .then(cfg => {
+          if (cfg) {
+            appState.config = Object.assign(appState.config, cfg);
+            applyGlobalConfig();
+          }
+        })
+        .catch(err => console.error(err));
+    });
+
+    function showLoading(msg = 'Memproses data...') {
+      document.getElementById('loadingText').textContent = msg;
+      document.getElementById('loadingOverlay').classList.remove('hidden');
+    }
+    function hideLoading() {
+      document.getElementById('loadingOverlay').classList.add('hidden');
+    }
+
+    function showToast(msg, isError = false) {
+      const box = document.getElementById('toastBox');
+      const div = document.createElement('div');
+      div.className = 'toast' + (isError ? ' error' : '');
+      div.innerHTML = `<i class="fa-solid ${isError ? 'fa-circle-exclamation' : 'fa-circle-check'}"></i> <span>${msg}</span>`;
+      box.appendChild(div);
+      setTimeout(() => div.remove(), 3800);
+    }
+
+    function applySchoolLogo(src) {
+      const logoUrl = src || DEFAULT_NII_LOGO;
+      document.getElementById('headerSchoolLogo').src = logoUrl;
+      document.getElementById('previewSettingLogo').src = logoUrl;
+    }
+
+    function applyGlobalConfig() {
+      const name = appState.config.APP_NAME || 'SiL Tahfidz';
+      const lang = appState.config.LANGUAGE || 'ID';
+      const logo = appState.config.SCHOOL_LOGO_BASE64 || DEFAULT_NII_LOGO;
+
+      document.getElementById('headerAppName').textContent = name;
+      document.getElementById('landingAppName').textContent = name;
+      document.getElementById('setAppName').value = name;
+      document.getElementById('setLanguage').value = lang;
+      applySchoolLogo(logo);
+
+      const dict = I18N[lang] || I18N.ID;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) el.textContent = dict[key];
+      });
+    }
+
+    /* ==========================================================================
+       NAVIGASI LANDING -> WORKSPACE -> LOGOUT
+       ========================================================================== */
+    function selectLandingSemester(sem) {
+      appState.semester = sem;
+      document.getElementById('pillSem1').classList.toggle('active', sem === '1');
+      document.getElementById('pillSem2').classList.toggle('active', sem === '2');
+    }
+
+    function startAppSession() {
+      appState.kelas = document.getElementById('landingKelasSelect').value;
+      document.getElementById('switchKelas').value = appState.kelas;
+      document.getElementById('switchSemester').value = appState.semester;
+
+      document.getElementById('landingView').classList.add('hidden');
+      document.getElementById('workspaceView').classList.remove('hidden');
+      loadBundleData();
+    }
+
+    function handleContextSwitch() {
+      appState.kelas = document.getElementById('switchKelas').value;
+      appState.semester = document.getElementById('switchSemester').value;
+      backToHome();
+      loadBundleData();
+    }
+
+    function logoutSession() {
+      // Hapus sesi aktif client-side & kembalikan ke halaman awal
+      appState.siswaList = [];
+      appState.surahList = [];
+      appState.progresMap = {};
+      document.getElementById('homeStudentDropdown').value = '';
+      document.getElementById('workspaceView').classList.add('hidden');
+      document.getElementById('landingView').classList.remove('hidden');
+      showToast('Sesi diakhiri. Anda telah kembali ke halaman awal.');
+    }
+
+    function openSubpage(pageId) {
+      ['pageHome', 'pageSiswa', 'pageMadrasah', 'pageSurah', 'pageProgres', 'pageRapor', 'pagePengaturan']
+        .forEach(id => document.getElementById(id).classList.add('hidden'));
+      document.getElementById(pageId).classList.remove('hidden');
+
+      if (pageId === 'pageProgres') prepareProgresPage();
+      if (pageId === 'pageRapor') prepareRaporPage();
+    }
+
+    function backToHome() {
+      openSubpage('pageHome');
+      renderHomeStudentProgress();
+    }
+
+    /* ==========================================================================
+       LOAD & SINKRONISASI DATA DARI SPREADSHEET
+       ========================================================================== */
+    function loadBundleData(callback) {
+      showLoading(`Memuat data Kelas ${appState.kelas} Semester ${appState.semester}...`);
+      callGas('getDashboardBundle', appState.kelas, appState.semester)
+        .then(res => {
+          hideLoading();
+          appState.madrasah = res.madrasah || {};
+          appState.siswaList = res.siswaList || [];
+          appState.surahList = res.surahList || [];
+          appState.progresMap = res.progresMap || {};
+
+          refreshAllUI();
+          if (typeof callback === 'function') callback();
+        })
+        .catch(err => {
+          hideLoading();
+          showToast(err.message || 'Gagal memuat data dari server.', true);
+        });
+    }
+
+    function refreshAllUI() {
+      document.getElementById('badgeContextInfo').textContent = `Kelas ${appState.kelas} • Semester ${appState.semester}`;
+      document.getElementById('headerSchoolName').textContent = appState.madrasah.namaMadrasah || 'MTsS Nurul Islam Indonesia';
+
+      // Populate Dropdown Siswa di Home, Progres, dan Rapor
+      const dropdownIds = ['homeStudentDropdown', 'progStudentDropdown', 'raporStudentDropdown'];
+      dropdownIds.forEach(id => {
+        const el = document.getElementById(id);
+        const prev = el.value;
+        el.innerHTML = '<option value="">-- Pilih Nama Siswa --</option>';
+        appState.siswaList.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s.id;
+          opt.textContent = `${s.no}. ${s.nama} (${s.nis || 'Tanpa NIS'})`;
+          el.appendChild(opt);
+        });
+        if (appState.siswaList.some(s => s.id === prev)) el.value = prev;
+      });
+
+      // Populate Form Data Madrasah
+      document.getElementById('mdrNamaMadrasah').value = appState.madrasah.namaMadrasah || 'MTsS Nurul Islam Indonesia';
+      document.getElementById('mdrKelasSemester').value = `Kelas ${appState.kelas} / Semester ${appState.semester}`;
+      document.getElementById('mdrGuruPenguji').value = appState.madrasah.namaGuruPenguji || '';
+      document.getElementById('mdrKepalaMadrasah').value = appState.madrasah.namaKepalaMadrasah || '';
+      document.getElementById('mdrTanggalRapor').value = appState.madrasah.tanggalRapor || '';
+      document.getElementById('mdrTahunAjaran').value = appState.madrasah.tahunAjaran || '2026/2027';
+
+      renderTableSiswa();
+      renderTableSurah();
+      renderHomeStudentProgress();
+    }
+
+    /* ==========================================================================
+       KOLOM UTAMA: PROGRES SISWA DI HALAMAN HOME
+       ========================================================================== */
+    function renderHomeStudentProgress() {
+      const idSiswa = document.getElementById('homeStudentDropdown').value;
+      const tbody = document.getElementById('homeSurahTableBody');
+      const totalSurah = appState.surahList.length;
+
+      if (!idSiswa) {
+        document.getElementById('homeAchievedCount').textContent = `0 / ${totalSurah}`;
+        document.getElementById('homeTargetSurah').textContent = '-';
+        document.getElementById('homeProgressPercent').textContent = '0%';
+        document.getElementById('homeProgressBar').style.width = '0%';
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:24px;">Silakan pilih nama siswa pada dropdown di atas.</td></tr>`;
+        return;
+      }
+
+      const prog = appState.progresMap[idSiswa] || {
+        targetSurah: 'Belum ditentukan',
+        detailSurah: [],
+        persentase: 0
+      };
+
+      const detailMap = {};
+      (prog.detailSurah || []).forEach(d => { detailMap[d.namaSurah] = d; });
+
+      let achieved = 0;
+      tbody.innerHTML = '';
+
+      if (appState.surahList.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">Daftar surah untuk kelas & semester ini belum diisi.</td></tr>`;
+      } else {
+        appState.surahList.forEach((surah, idx) => {
+          const item = detailMap[surah.namaSurah] || { kualitas: '-', status: 'Belum tercapai' };
+          const isDone = item.status === 'Tercapai';
+          if (isDone) achieved++;
+
+          tbody.innerHTML += `
+            <tr>
+              <td>${idx + 1}</td>
+              <td><strong>${surah.namaSurah}</strong></td>
+              <td>${item.kualitas || '-'}</td>
+              <td>
+                <span class="badge ${isDone ? 'badge-success' : 'badge-muted'}">
+                  ${isDone ? 'Tercapai' : 'Belum tercapai'}
+                </span>
+              </td>
+            </tr>
+          `;
+        });
+      }
+
+      const pct = totalSurah > 0 ? Math.round((achieved / totalSurah) * 1000) / 10 : 0;
+      document.getElementById('homeAchievedCount').textContent = `${achieved} / ${totalSurah} Surah`;
+      document.getElementById('homeTargetSurah').textContent = prog.targetSurah || '-';
+      document.getElementById('homeProgressPercent').textContent = `${pct}%`;
+      document.getElementById('homeProgressBar').style.width = `${pct}%`;
+    }
+
+    /* ==========================================================================
+       MENU DATA SISWA (MANUAL, EDIT, HAPUS, TEMPLATE & EXCEL IMPORT)
+       ========================================================================== */
+    function renderTableSiswa() {
+      const tbody = document.getElementById('tableSiswaBody');
+      if (appState.siswaList.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:20px;">Belum ada data siswa pada kelas & semester ini.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = appState.siswaList.map((s, idx) => `
+        <tr>
+          <td>${idx + 1}</td>
+          <td><strong>${s.nama}</strong></td>
+          <td>${s.nis || '-'}</td>
+          <td>${s.ttl || '-'}</td>
+          <td>${s.alamat || '-'}</td>
+          <td>${s.orangTua || '-'}</td>
+          <td style="text-align:center; white-space:nowrap;">
+            <button type="button" class="action-icon-btn edit" title="Edit Siswa" onclick="editSiswaRow('${s.id}')">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+            <button type="button" class="action-icon-btn delete" title="Hapus Siswa" onclick="confirmDeleteSiswa('${s.id}', '${s.nama.replace(/'/g, "\\'")}')">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function submitSiswaManual() {
+      const nama = document.getElementById('inputSiswaNama').value.trim();
+      if (!nama) return showToast('Nama siswa wajib diisi!', true);
+
+      const payload = {
+        id: document.getElementById('editSiswaId').value,
+        kelas: appState.kelas,
+        semester: appState.semester,
+        nama: nama,
+        nis: document.getElementById('inputSiswaNis').value,
+        ttl: document.getElementById('inputSiswaTtl').value,
+        alamat: document.getElementById('inputSiswaAlamat').value,
+        orangTua: document.getElementById('inputSiswaOrtu').value
+      };
+
+      showLoading('Menyimpan data siswa...');
+      callGas('saveSiswa', payload)
+        .then(res => {
+          resetFormSiswa();
+          loadBundleData(() => showToast(res.message));
+        })
+        .catch(err => { hideLoading(); showToast(err.message, true); });
+    }
+
+    function editSiswaRow(id) {
+      const s = appState.siswaList.find(item => item.id === id);
+      if (!s) return;
+      document.getElementById('editSiswaId').value = s.id;
+      document.getElementById('inputSiswaNama').value = s.nama;
+      document.getElementById('inputSiswaNis').value = s.nis;
+      document.getElementById('inputSiswaTtl').value = s.ttl;
+      document.getElementById('inputSiswaAlamat').value = s.alamat;
+      document.getElementById('inputSiswaOrtu').value = s.orangTua;
+      document.getElementById('formSiswaTitle').textContent = 'Edit Data Siswa: ' + s.nama;
+      document.getElementById('btnCancelEditSiswa').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function resetFormSiswa() {
+      document.getElementById('editSiswaId').value = '';
+      document.getElementById('inputSiswaNama').value = '';
+      document.getElementById('inputSiswaNis').value = '';
+      document.getElementById('inputSiswaTtl').value = '';
+      document.getElementById('inputSiswaAlamat').value = '';
+      document.getElementById('inputSiswaOrtu').value = '';
+      document.getElementById('formSiswaTitle').textContent = 'Tambah Data Siswa Manual';
+      document.getElementById('btnCancelEditSiswa').classList.add('hidden');
+    }
+
+    function confirmDeleteSiswa(id, nama) {
+      if (!confirm(`Apakah Anda yakin ingin menghapus data siswa "${nama}"? Data progres terkait juga akan dihapus.`)) return;
+      showLoading('Menghapus data siswa...');
+      callGas('deleteSiswa', id)
+        .then(res => loadBundleData(() => showToast(res.message)))
+        .catch(err => { hideLoading(); showToast(err.message, true); });
+    }
+
+    function downloadTemplateSiswa() {
+      const wsData = [
+        ['DATA SISWA MTsS NURUL ISLAM INDONESIA'],
+        [`KELAS : ${appState.kelas} / SEMESTER : ${appState.semester}`],
+        [],
+        ['No', 'NAMA SISWA', 'NIS / NISN', 'TEMPAT TANGGAL LAHIR', 'ALAMAT', 'NAMA ORANGTUA'],
+        [1, 'Contoh: Muhammad Rizky', '12345 / 0091234567', 'Medan, 10 Januari 2012', 'Jl. Pendidikan No. 10', 'Bpk. Ahmad']
+      ];
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(wsData);
+      XLSX.utils.book_append_sheet(wb, ws, 'DATA SISWA');
+      XLSX.writeFile(wb, `Template_Data_Siswa_Kelas_${appState.kelas}.xlsx`);
+    }
+
+    function handleUploadExcelSiswa(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const sheet = workbook.Sheets[workbook.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+
+          let headerIdx = -1;
+          for (let i = 0; i < rows.length; i++) {
+            const rowStr = rows[i].map(c => String(c).toUpperCase().trim());
+            if (rowStr.includes('NAMA SISWA')) {
+              headerIdx = i;
+              break;
+            }
+          }
+
+          const startRow = headerIdx >= 0 ? headerIdx + 1 : 1;
+          const validSiswa = [];
+
+          for (let i = startRow; i < rows.length; i++) {
+            const r = rows[i];
+            const nama = String(r[1] || '').trim();
+            if (!nama || nama.toLowerCase().startsWith('contoh:')) continue;
+
+            validSiswa.push({
+              nama: nama,
+              nis: String(r[2] || '').trim(),
+              ttl: String(r[3] || '').trim(),
+              alamat: String(r[4] || '').trim(),
+              orangTua: String(r[5] || '').trim()
+            });
+          }
+
+          event.target.value = '';
+          if (validSiswa.length === 0) {
+            return showToast('Tidak ada baris data siswa yang valid pada file Excel tersebut.', true);
+          }
+
+          showLoading(`Mengimpor ${validSiswa.length} data siswa ke Google Sheets...`);
+          callGas('importSiswaBulk', appState.kelas, appState.semester, validSiswa)
+            .then(res => loadBundleData(() => showToast(res.message)))
+            .catch(err => { hideLoading(); showToast(err.message, true); });
+        } catch (err) {
+          showToast('Format file Excel tidak dapat dibaca.', true);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    /* ==========================================================================
+       MENU DATA MADRASAH
+       ========================================================================== */
+    function submitDataMadrasah() {
+      const payload = {
+        id: appState.madrasah.id || '',
+        kelas: appState.kelas,
+        semester: appState.semester,
+        namaMadrasah: document.getElementById('mdrNamaMadrasah').value.trim(),
+        namaGuruPenguji: document.getElementById('mdrGuruPenguji').value.trim(),
+        namaKepalaMadrasah: document.getElementById('mdrKepalaMadrasah').value.trim(),
+        tanggalRapor: document.getElementById('mdrTanggalRapor').value.trim(),
+        tahunAjaran: document.getElementById('mdrTahunAjaran').value.trim()
+      };
+
+      showLoading('Menyimpan Data Madrasah...');
+      callGas('saveDataMadrasah', payload)
+        .then(res => loadBundleData(() => showToast(res.message)))
+        .catch(err => { hideLoading(); showToast(err.message, true); });
+    }
+
+    /* ==========================================================================
+       MENU DAFTAR SURAH (MANUAL, EDIT, HAPUS, TEMPLATE & EXCEL IMPORT)
+       ========================================================================== */
+    function renderTableSurah() {
+      const tbody = document.getElementById('tableSurahBody');
+      if (appState.surahList.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">Belum ada daftar surah untuk kelas & semester ini.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = appState.surahList.map((s, idx) => `
+        <tr>
+          <td>${idx + 1}</td>
+          <td><strong>${s.namaSurah}</strong></td>
+          <td>${s.keterangan || '-'}</td>
+          <td style="text-align:center;">
+            <button type="button" class="action-icon-btn edit" title="Edit Surah" onclick="editSurahRow('${s.id}')">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+            <button type="button" class="action-icon-btn delete" title="Hapus Surah" onclick="confirmDeleteSurah('${s.id}', '${s.namaSurah.replace(/'/g, "\\'")}')">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function submitSurahManual() {
+      const namaSurah = document.getElementById('inputSurahNama').value.trim();
+      if (!namaSurah) return showToast('Nama Surah wajib diisi!', true);
+
+      const payload = {
+        id: document.getElementById('editSurahId').value,
+        kelas: appState.kelas,
+        semester: appState.semester,
+        namaSurah: namaSurah,
+        keterangan: document.getElementById('inputSurahKet').value
+      };
+
+      showLoading('Menyimpan Daftar Surah...');
+      callGas('saveSurah', payload)
+        .then(res => {
+          resetFormSurah();
+          loadBundleData(() => showToast(res.message));
+        })
+        .catch(err => { hideLoading(); showToast(err.message, true); });
+    }
+
+    function editSurahRow(id) {
+      const s = appState.surahList.find(item => item.id === id);
+      if (!s) return;
+      document.getElementById('editSurahId').value = s.id;
+      document.getElementById('inputSurahNama').value = s.namaSurah;
+      document.getElementById('inputSurahKet').value = s.keterangan;
+      document.getElementById('formSurahTitle').textContent = 'Edit Surah: ' + s.namaSurah;
+      document.getElementById('btnCancelEditSurah').classList.remove('hidden');
+    }
+
+    function resetFormSurah() {
+      document.getElementById('editSurahId').value = '';
+      document.getElementById('inputSurahNama').value = '';
+      document.getElementById('inputSurahKet').value = '';
+      document.getElementById('formSurahTitle').textContent = 'Input Daftar Surah Manual';
+      document.getElementById('btnCancelEditSurah').classList.add('hidden');
+    }
+
+    function confirmDeleteSurah(id, nama) {
+      if (!confirm(`Hapus surah "${nama}" dari daftar hafalan?`)) return;
+      showLoading('Menghapus surah...');
+      callGas('deleteSurah', id)
+        .then(res => loadBundleData(() => showToast(res.message)))
+        .catch(err => { hideLoading(); showToast(err.message, true); });
+    }
+
+    function downloadTemplateSurah() {
+      const wsData = [
+        ['DAFTAR SURAH HAFALAN MTsS NURUL ISLAM INDONESIA'],
+        [`KELAS : ${appState.kelas} / SEMESTER : ${appState.semester}`],
+        [],
+        ['NO.', 'NAMA SURAH', 'KETERANGAN'],
+        [1, "An-Naba'", 'Juz 30'],
+        [2, "An-Nazi'at", 'Juz 30']
+      ];
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(wsData);
+      XLSX.utils.book_append_sheet(wb, ws, 'DAFTAR SURAH');
+      XLSX.writeFile(wb, `Template_Daftar_Surah_Kelas_${appState.kelas}.xlsx`);
+    }
+
+    function handleUploadExcelSurah(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const sheet = workbook.Sheets[workbook.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+
+          let headerIdx = -1;
+          for (let i = 0; i < rows.length; i++) {
+            const rowStr = rows[i].map(c => String(c).toUpperCase().trim());
+            if (rowStr.includes('NAMA SURAH')) {
+              headerIdx = i;
+              break;
+            }
+          }
+
+          const startRow = headerIdx >= 0 ? headerIdx + 1 : 1;
+          const validSurah = [];
+
+          for (let i = startRow; i < rows.length; i++) {
+            const r = rows[i];
+            const namaSurah = String(r[1] || '').trim();
+            if (!namaSurah) continue;
+
+            validSurah.push({
+              namaSurah: namaSurah,
+              keterangan: String(r[2] || '').trim()
+            });
+          }
+
+          event.target.value = '';
+          if (validSurah.length === 0) {
+            return showToast('Tidak ada data nama surah yang valid pada file Excel tersebut.', true);
+          }
+
+          showLoading(`Mengimpor ${validSurah.length} surah ke database...`);
+          callGas('importSurahBulk', appState.kelas, appState.semester, validSurah)
+            .then(res => loadBundleData(() => showToast(res.message)))
+            .catch(err => { hideLoading(); showToast(err.message, true); });
+        } catch (err) {
+          showToast('Gagal memproses file Excel daftar surah.', true);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    /* ==========================================================================
+       MENU PROGRES HAFALAN
+       ========================================================================== */
+    function prepareProgresPage() {
+      const hasSiswa = appState.siswaList.length > 0;
+      document.getElementById('progresWarningBox').classList.toggle('hidden', hasSiswa);
+      document.getElementById('progresFormContainer').classList.toggle('hidden', !hasSiswa);
+      if (hasSiswa) loadStudentProgresEditor();
+    }
+
+    function loadStudentProgresEditor() {
+      const idSiswa = document.getElementById('progStudentDropdown').value;
+      const tbody = document.getElementById('progSurahTableBody');
+      const total = appState.surahList.length;
+
+      document.getElementById('progTotalDisplay').textContent = `${total} Surah`;
+
+      if (!idSiswa) {
+        document.getElementById('progTargetSurah').value = '';
+        document.getElementById('progCatatanGuru').value = '';
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-muted);">Pilih nama siswa terlebih dahulu.</td></tr>`;
+        recalculateProgresLive();
+        return;
+      }
+
+      const existing = appState.progresMap[idSiswa] || {
+        targetSurah: '',
+        detailSurah: [],
+        catatanGuru: ''
+      };
+
+      document.getElementById('progTargetSurah').value = existing.targetSurah || '';
+      document.getElementById('progCatatanGuru').value = existing.catatanGuru || '';
+
+      const detailMap = {};
+      (existing.detailSurah || []).forEach(d => { detailMap[d.namaSurah] = d; });
+
+      if (total === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--danger);">Daftar Surah masih kosong. Silakan isi menu DAFTAR SURAH terlebih dahulu.</td></tr>`;
+      } else {
+        tbody.innerHTML = appState.surahList.map((s, idx) => {
+          const saved = detailMap[s.namaSurah] || { kualitas: 'Jayyid Jiddan (Baik Sekali)', status: 'Belum tercapai' };
+          return `
+            <tr data-surah="${s.namaSurah}">
+              <td>${idx + 1}</td>
+              <td><strong>${s.namaSurah}</strong></td>
+              <td>
+                <select class="form-control prog-kualitas">
+                  <option value="Jayyid Jiddan (Baik Sekali)" ${saved.kualitas === 'Jayyid Jiddan (Baik Sekali)' ? 'selected' : ''}>Jayyid Jiddan (Baik Sekali)</option>
+                  <option value="Jayyid (Baik)" ${saved.kualitas === 'Jayyid (Baik)' ? 'selected' : ''}>Jayyid (Baik)</option>
+                  <option value="Maqbul (Cukup)" ${saved.kualitas === 'Maqbul (Cukup)' ? 'selected' : ''}>Maqbul (Cukup)</option>
+                  <option value="Rasib (Perlu Bimbingan)" ${saved.kualitas === 'Rasib (Perlu Bimbingan)' ? 'selected' : ''}>Rasib (Perlu Bimbingan)</option>
+                </select>
+              </td>
+              <td>
+                <select class="form-control prog-status" onchange="recalculateProgresLive()">
+                  <option value="Belum tercapai" ${saved.status !== 'Tercapai' ? 'selected' : ''}>Belum tercapai</option>
+                  <option value="Tercapai" ${saved.status === 'Tercapai' ? 'selected' : ''}>Tercapai</option>
+                </select>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+      recalculateProgresLive();
+    }
+
+    function recalculateProgresLive() {
+      const total = appState.surahList.length;
+      const statusSelects = document.querySelectorAll('#progSurahTableBody .prog-status');
+      let tercapai = 0;
+      statusSelects.forEach(sel => {
+        if (sel.value === 'Tercapai') tercapai++;
+      });
+
+      const pct = total > 0 ? Math.round((tercapai / total) * 1000) / 10 : 0;
+      document.getElementById('progAchievedDisplay').textContent = `${tercapai} Surah`;
+      document.getElementById('progFooterTercapai').textContent = `${tercapai} Surah`;
+      document.getElementById('progPercentDisplay').textContent = `${pct}%`;
+    }
+
+    function submitProgresHafalan() {
+      const idSiswa = document.getElementById('progStudentDropdown').value;
+      if (!idSiswa) return showToast('Pilih nama siswa terlebih dahulu!', true);
+
+      const rows = document.querySelectorAll('#progSurahTableBody tr[data-surah]');
+      const detailSurah = [];
+      rows.forEach(tr => {
+        detailSurah.push({
+          namaSurah: tr.getAttribute('data-surah'),
+          kualitas: tr.querySelector('.prog-kualitas').value,
+          status: tr.querySelector('.prog-status').value
+        });
+      });
+
+      const payload = {
+        id: (appState.progresMap[idSiswa] || {}).id || '',
+        idSiswa: idSiswa,
+        kelas: appState.kelas,
+        semester: appState.semester,
+        targetSurah: document.getElementById('progTargetSurah').value,
+        totalSurah: appState.surahList.length,
+        detailSurah: detailSurah,
+        catatanGuru: document.getElementById('progCatatanGuru').value
+      };
+
+      showLoading('Menyimpan Progres Hafalan ke Database...');
+      callGas('saveProgresHafalan', payload)
+        .then(res => loadBundleData(() => showToast(res.message)))
+        .catch(err => { hideLoading(); showToast(err.message, true); });
+    }
+
+    /* ==========================================================================
+       MENU RAPOR TAHFIDZ (PREVIEW A4, PRINT & DOWNLOAD PDF)
+       ========================================================================== */
+    function prepareRaporPage() {
+      renderRaporA4();
+    }
+
+    function renderRaporA4() {
+      const idSiswa = document.getElementById('raporStudentDropdown').value;
+      const m = appState.madrasah;
+
+      document.getElementById('rprNamaMadrasahHeader').textContent = m.namaMadrasah || 'MTsS Nurul Islam Indonesia';
+      document.getElementById('rprKelasSem').textContent = `${appState.kelas} / ${appState.semester === '1' ? '1 (Ganjil)' : '2 (Genap)'}`;
+      document.getElementById('rprTahunAjaran').textContent = m.tahunAjaran || '2026/2027';
+      document.getElementById('rprTanggalTerbit').textContent = m.tanggalRapor || 'Medan, .......................... 2026';
+      document.getElementById('rprSignGuru').textContent = m.namaGuruPenguji || '....................................';
+      document.getElementById('rprSignKepala').textContent = m.namaKepalaMadrasah || '....................................';
+
+      const tbody = document.getElementById('rprTableBody');
+
+      if (!idSiswa) {
+        document.getElementById('rprNamaSiswa').textContent = '-';
+        document.getElementById('rprNis').textContent = '-';
+        document.getElementById('rprTtl').textContent = '-';
+        document.getElementById('rprTargetSurah').textContent = '-';
+        document.getElementById('rprSignOrtu').textContent = '....................................';
+        document.getElementById('rprJmlTercapai').textContent = '0';
+        document.getElementById('rprTotalSurah').textContent = appState.surahList.length;
+        document.getElementById('rprPersentase').textContent = '0%';
+        document.getElementById('rprCatatanGuru').textContent = '-';
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:16px;">Silakan pilih nama siswa pada dropdown di atas.</td></tr>`;
+        return;
+      }
+
+      const siswa = appState.siswaList.find(s => s.id === idSiswa) || {};
+      const prog = appState.progresMap[idSiswa] || { targetSurah: '-', detailSurah: [], catatanGuru: '-' };
+
+      document.getElementById('rprNamaSiswa').textContent = siswa.nama || '-';
+      document.getElementById('rprNis').textContent = siswa.nis || '-';
+      document.getElementById('rprTtl').textContent = siswa.ttl || '-';
+      document.getElementById('rprTargetSurah').textContent = prog.targetSurah || '-';
+      document.getElementById('rprSignOrtu').textContent = siswa.orangTua || '....................................';
+      document.getElementById('rprCatatanGuru').textContent = prog.catatanGuru || 'Terus tingkatkan muraja\'ah dan kelancaran hafalan.';
+
+      const detailMap = {};
+      (prog.detailSurah || []).forEach(d => { detailMap[d.namaSurah] = d; });
+
+      let tercapai = 0;
+      const total = appState.surahList.length;
+
+      if (total === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">Daftar surah belum tersedia.</td></tr>`;
+      } else {
+        tbody.innerHTML = appState.surahList.map((surah, idx) => {
+          const item = detailMap[surah.namaSurah] || { kualitas: '-', status: 'Belum tercapai' };
+          const isDone = item.status === 'Tercapai';
+          if (isDone) tercapai++;
+          return `
+            <tr>
+              <td style="text-align:center;">${idx + 1}</td>
+              <td>${surah.namaSurah}</td>
+              <td>${isDone ? item.kualitas : (item.kualitas !== '-' ? item.kualitas : '-')}</td>
+              <td style="text-align:center; font-weight:700;">${isDone ? 'Tercapai' : 'Belum tercapai'}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      const pct = total > 0 ? Math.round((tercapai / total) * 1000) / 10 : 0;
+      document.getElementById('rprJmlTercapai').textContent = tercapai;
+      document.getElementById('rprTotalSurah').textContent = total;
+      document.getElementById('rprPersentase').textContent = `${pct}%`;
+    }
+
+    function printRaporSheet() {
+      const idSiswa = document.getElementById('raporStudentDropdown').value;
+      if (!idSiswa) return showToast('Pilih nama siswa terlebih dahulu sebelum mencetak!', true);
+      window.print();
+    }
+
+    function downloadRaporPdf() {
+      const idSiswa = document.getElementById('raporStudentDropdown').value;
+      if (!idSiswa) return showToast('Pilih nama siswa terlebih dahulu!', true);
+
+      const siswa = appState.siswaList.find(s => s.id === idSiswa);
+      const element = document.getElementById('raporA4Area');
+      const kopBox = element.querySelector('.kop-surat-placeholder');
+
+      kopBox.style.borderColor = 'transparent';
+      kopBox.style.color = 'transparent';
+
+      const fileName = `Rapor_Tahfidz_${siswa.nama.replace(/\s+/g, '_')}_Kls${appState.kelas}_Sem${appState.semester}.pdf`;
+      const opt = {
+        margin: 0,
+        filename: fileName,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      showLoading('Membuat PDF Rapor A4 & Mengarsipkan ke Google Drive...');
+
+      html2pdf().set(opt).from(element).outputPdf('datauristring').then(pdfBase64 => {
+        kopBox.style.borderColor = '#CBD5E1';
+        kopBox.style.color = '#94A3B8';
+
+        html2pdf().set(opt).from(element).save();
+
+        callGas('archiveRaporPdfToDrive', {
+          idSiswa: siswa.id,
+          namaSiswa: siswa.nama,
+          kelas: appState.kelas,
+          semester: appState.semester,
+          tahunAjaran: appState.madrasah.tahunAjaran || '',
+          persentase: document.getElementById('rprPersentase').textContent,
+          base64Pdf: pdfBase64
+        })
+        .then(() => {
+          hideLoading();
+          showToast('PDF Rapor berhasil diunduh & diarsipkan ke Google Drive.');
+        })
+        .catch(() => {
+          hideLoading();
+          showToast('PDF Rapor berhasil diunduh ke perangkat.');
+        });
+      });
+    }
+
+    /* ==========================================================================
+       MENU PENGATURAN (LOGO SEKOLAH, NAMA APLIKASI, BAHASA)
+       ========================================================================== */
+    function handleLogoUploadPreview(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        // Resize image via canvas agar ringan disimpan di Google Sheets
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          const maxSize = 180;
+          let w = img.width, h = img.height;
+          if (w > h && w > maxSize) { h *= maxSize / w; w = maxSize; }
+          else if (h > maxSize) { w *= maxSize / h; h = maxSize; }
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          const resizedBase64 = canvas.toDataURL('image/png');
+          appState.tempLogoBase64 = resizedBase64;
+          document.getElementById('previewSettingLogo').src = resizedBase64;
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function submitPengaturan() {
+      const updates = {
+        APP_NAME: document.getElementById('setAppName').value.trim() || 'SiL Tahfidz',
+        LANGUAGE: document.getElementById('setLanguage').value
+      };
+      if (appState.tempLogoBase64) {
+        updates.SCHOOL_LOGO_BASE64 = appState.tempLogoBase64;
+      }
+
+      showLoading('Menyimpan Pengaturan...');
+      callGas('saveAppConfig', updates)
+        .then(res => {
+          hideLoading();
+          appState.config = Object.assign(appState.config, res.config);
+          appState.tempLogoBase64 = '';
+          applyGlobalConfig();
+          showToast('Pengaturan aplikasi berhasil disimpan.');
+        })
+        .catch(err => { hideLoading(); showToast(err.message, true); });
+    }
+  </script>
+</body>
+</html>
